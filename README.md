@@ -1,4 +1,4 @@
-# AI AdSense
+# AI AdGenie
 
 ## Overview
 
