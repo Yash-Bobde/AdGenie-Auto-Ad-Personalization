@@ -1,4 +1,4 @@
-// src/App.js
+//src/App.js
 import React, { useState, useEffect } from 'react';
 import HomeScreen from './screens/HomeScreen';
 import SmileyScreen from './screens/SmileyScreen';
@@ -6,15 +6,19 @@ import socket from './socket';
 
 const App = () => {
   const [message, setMessage] = useState(null);
-  const [isSpeaking, setSpeaking] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
+  // Subscribe to new messages from socket
   useEffect(() => {
-    socket.on('newMessage', (newMessage) => {
+    const handleNewMessage = (newMessage) => {
       setMessage(newMessage);
-    });
+    };
 
+    socket.on('newMessage', handleNewMessage);
+
+    // Cleanup on unmount
     return () => {
-      socket.off('newMessage');
+      socket.off('newMessage', handleNewMessage);
     };
   }, []);
 
@@ -22,18 +26,24 @@ const App = () => {
     setMessage(null);
   };
 
-  return (
-    <div className="App">
-      {message ? (
+  const renderScreen = () => {
+    if (message) {
+      return (
         <SmileyScreen
           isSpeaking={isSpeaking}
-          setSpeaking={setSpeaking}
+          setSpeaking={setIsSpeaking}
           message={message}
           onSpeechEnd={handleSpeechEnd}
         />
-      ) : (
-        <HomeScreen />
-      )}
+      );
+    }
+
+    return <HomeScreen />;
+  };
+
+  return (
+    <div className="App">
+      {renderScreen()}
     </div>
   );
 };
